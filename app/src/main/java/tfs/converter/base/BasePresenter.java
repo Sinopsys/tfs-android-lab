@@ -9,11 +9,15 @@ public abstract class BasePresenter<T extends BaseView> {
     private T view;
 
     public void attachView(T view) {
-        this.view = view;
+        if (this.view == null) {
+            this.view = view;
+        }
     }
 
     public void detatchView() {
-        this.view = null;
+        if (this.view != null) {
+            this.view = null;
+        }
     }
 
     public T getView() {

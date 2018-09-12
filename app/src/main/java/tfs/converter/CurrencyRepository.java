@@ -8,5 +8,8 @@ import java.util.List;
 
 public interface CurrencyRepository {
 
-    List<Currency> getCurrencies();
+    void downloadCurrencies();
 }
+
+
+// EOF
