@@ -27,8 +27,6 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
     @BindView(R.id.spTo) Spinner spTo;
     @BindView(R.id.btnConvert) Button btnConvert;
 
-    private ArrayAdapter<CharSequence> adapterSpFrom;
-    private ArrayAdapter<CharSequence> adapterSpTo;
     private ConverterPresenter presenter;
 
     @Override
@@ -76,14 +74,10 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
 
     @Override
     public void setCurrencies(List<Currency> currencyList) {
-//        // TODO: set spinner data
-//        String adsf = "";
-//
-//        for (Currency c : currencyList) {
-//            adsf += c.getId() + " ";
-//        }
-//
-//        Toast.makeText(getApplicationContext(), adsf, Toast.LENGTH_LONG).show();
+        ArrayAdapter<Currency> adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, currencyList);
+        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spFrom.setAdapter(adapter);
+        spTo.setAdapter(adapter);
     }
 }
 
