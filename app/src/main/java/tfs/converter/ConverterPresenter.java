@@ -1,15 +1,9 @@
 package tfs.converter;
 
-import android.animation.ObjectAnimator;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import tfs.converter.base.BasePresenter;
@@ -55,7 +49,7 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
 
         } else {
             currencyRepository = new CurrencyRepositoryImpl(new OnCurrenciesDownload(),
-                    new OnRateDownload(), new OnAllRatesDownload());
+                    new OnRateDownload());
             if (!downloaded) {
                 getView().showProgress();
                 currencyRepository.downloadCurrencies();
@@ -90,9 +84,6 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
             // get all to all relations rates.
             getView().setCurrencies(currencies);
             getView().hideProgress();
-            if (!ConverterPresenter.this.downloaded) {
-                currencyRepository.getAllRates(currencies);
-            }
             ConverterPresenter.this.downloaded = true;
         }
 
