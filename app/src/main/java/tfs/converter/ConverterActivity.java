@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -23,13 +24,21 @@ import butterknife.ButterKnife;
 //
 //
 //  What is done:
-//  * A stable and working application
+//  * A stable and working application using MVP pattern design
 //  * Screen rotation is supported; spinners positions are retained
 //  * A notification pop-up when device is not connected to a network
 //  * Highlight EditText element when it is empty to indicate that input is required
 //  * Saving currencies list to a database (implemented using SharedPrefs) so that
-//  * they are available offline
-//  * TODO no internet when convert is clicked
+//    they are available offline
+//
+//  What could be done more:
+//  * Better layout
+//  * Adding to DB exchange rates.. Because free API allows only 100 requests per hour,
+//    it is not possible to download all permutations of currency rates (e.g. EUR_USD,
+//    USD_EUR, USD_RUB, RUB_EUR, etc. one by one. The design of the application allows to
+//    add this functionality easily, but 403 Network errors would spam because of API limitations.
+//  * Endless improvements..
+//
 //
 
 /**
@@ -114,11 +123,19 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
         progress.setVisibility(View.INVISIBLE);
     }
 
+    /**
+     * Write calculations result to the "To" EditText.
+     * @param s calculation result.
+     */
     @Override
     public void setData(String s) {
         etTo.setText(s);
     }
 
+    /**
+     * Sets adapters for 2 main spinners with currencies and restores their positions.
+     * @param currencyList List of all currencies downloaded.
+     */
     @Override
     public void setCurrencies(List<Currency> currencyList) {
         ArrayAdapter<Currency> adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, currencyList);
@@ -129,11 +146,17 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
         spTo.setSelection(posTo);
     }
 
+    /**
+     * Highlights first EditText (etFrom) to indicate empty input.
+     */
     @Override
     public void showInputError() {
         etFrom.setError(inputError);
     }
 
+    /**
+     * OnClickListener of the 'convert' button.
+     */
     View.OnClickListener convertClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -145,11 +168,19 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
         }
     };
 
+    /**
+     * Method to get text from etFrom.
+     * @return text of the first EditText etFrom.
+     */
     @Override
     public String getFromText() {
         return etFrom.getText().toString();
     }
 
+    /**
+     * Checks if network is available.
+     * @return network available ? true : false
+     */
     @Override
     public boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
@@ -158,6 +189,9 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    /**
+     * Shows notification about missing internet connection.
+     */
     @Override
     public void showNoInternetNotification() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -168,6 +202,15 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    /**
+     * Shows a toast with the requested text.
+     * @param error Error message.
+     */
+    @Override
+    public void showErrorToast(String error) {
+        Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
     }
 }
 

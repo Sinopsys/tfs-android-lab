@@ -25,6 +25,8 @@ interface ConverterView extends BaseView {
     boolean isNetworkAvailable();
 
     void showNoInternetNotification();
+
+    void showErrorToast(String error);
 }
 
 
