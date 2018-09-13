@@ -4,6 +4,8 @@ package tfs.converter;
  * Created by sinopsys on 9/12/18.
  */
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 

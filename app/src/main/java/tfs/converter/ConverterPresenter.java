@@ -1,7 +1,13 @@
 package tfs.converter;
 
+import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +24,7 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
     private CurrencyRepository currencyRepository;
     private List<Currency> currencies;
     private double currentRate;
-    private boolean downloaded;
+    private boolean downloaded, internetErrorShown;
 
     public static ConverterPresenter getInstance() {
         if (instance == null) {
@@ -29,17 +35,33 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
         }
     }
 
-    private ConverterPresenter() { }
+    private ConverterPresenter() {
+    }
 
     public void getCurrencies() {
-        currencyRepository = new CurrencyRepositoryImpl(new OnCurrenciesDownload(),
-                new OnRateDownload());
-        if (!downloaded) {
-            getView().showProgress();
-            currencyRepository.downloadCurrencies();
-        }
-        else {
+        if (!getView().isNetworkAvailable()) {
+            if (!internetErrorShown) {
+                getView().showNoInternetNotification();
+            }
+            internetErrorShown = true;
+
+            List<Object> currs = MyApplication.getDb().getListObject(MyApplication.KEY_CURRENCIES, Currency.class);
+            currencies = new ArrayList<>();
+            for (int i = 0; i < currs.size(); ++i) {
+                currencies.add((Currency) currs.get(i));
+            }
+            Collections.sort(currencies, (p1, p2) -> p1.getId().compareTo(p2.getId()));
             getView().setCurrencies(currencies);
+
+        } else {
+            currencyRepository = new CurrencyRepositoryImpl(new OnCurrenciesDownload(),
+                    new OnRateDownload(), new OnAllRatesDownload());
+            if (!downloaded) {
+                getView().showProgress();
+                currencyRepository.downloadCurrencies();
+            } else {
+                getView().setCurrencies(currencies);
+            }
         }
     }
 
@@ -61,9 +83,17 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
         public void onSuccess(List<Currency> data) {
             Collections.sort(data, (p1, p2) -> p1.getId().compareTo(p2.getId()));
             currencies = data;
-            downloaded = true;
+            // put in DB
+            ArrayList<Object> toDb = new ArrayList<>();
+            toDb.addAll(currencies);
+            MyApplication.getDb().putListObject(MyApplication.KEY_CURRENCIES, toDb);
+            // get all to all relations rates.
             getView().setCurrencies(currencies);
             getView().hideProgress();
+            if (!ConverterPresenter.this.downloaded) {
+                currencyRepository.getAllRates(currencies);
+            }
+            ConverterPresenter.this.downloaded = true;
         }
 
         @Override

@@ -5,6 +5,7 @@ package tfs.converter.base;
  */
 
 public interface BaseView {
-    // ShowProgress
-    // HideProgress
 }
+
+
+// EOF

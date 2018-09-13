@@ -21,6 +21,10 @@ interface ConverterView extends BaseView {
     void showInputError();
 
     String getFromText();
+
+    boolean isNetworkAvailable();
+
+    void showNoInternetNotification();
 }
 
 

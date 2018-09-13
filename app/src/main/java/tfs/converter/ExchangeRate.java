@@ -8,8 +8,24 @@ package tfs.converter;
  * POJO class where first value is how many
  */
 public class ExchangeRate {
-    private double valueFrom;
-    private double valueTo;
+    private String course;
+    private double cost;
+
+    public String getCourse() {
+        return course;
+    }
+
+    public void setCourse(String course) {
+        this.course = course;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
 }
 
 

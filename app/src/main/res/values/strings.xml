@@ -4,4 +4,5 @@
     <string name="convertTo">Конвертировать в</string>
     <string name="convert">Конвертировать</string>
     <string name="inputError">Необходимо ввести сумму</string>
+    <string name="internetError">Отсутствует интернет соединение. Будут отображены последные загруженные список валют и курсы.</string>
 </resources>

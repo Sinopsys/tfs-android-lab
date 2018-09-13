@@ -17,17 +17,24 @@ public class MyApplication extends Application {
     public static final String URL_RATE = URL_BASE + "convert?compact=ultra&q=";
     public static final String KEY_POS_FROM = "POS_FROM";
     public static final String KEY_POS_TO = "POS_TO";
+    public static final String KEY_CURRENCIES = "CURRENCIES";
 
     private static RequestQueue queue;
+    private static TinyDB db;
 
     @Override
     public void onCreate() {
         super.onCreate();
         queue = Volley.newRequestQueue(this);
+        db = new TinyDB(this);
     }
 
     public static RequestQueue getRequestQueue() {
         return queue;
+    }
+
+    public static TinyDB getDb() {
+        return db;
     }
 }
 

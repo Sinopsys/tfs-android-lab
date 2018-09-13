@@ -1,7 +1,11 @@
 package tfs.converter;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.IBinder;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -119,6 +123,26 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
     @Override
     public String getFromText() {
         return etFrom.getText().toString();
+    }
+
+    @Override
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    @Override
+    public void showNoInternetNotification() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.internetError)
+                .setCancelable(false)
+                .setPositiveButton("OK", (dialog, id) -> {
+                    //do things
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }
 
