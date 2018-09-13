@@ -23,22 +23,17 @@ import tfs.converter.base.BaseView;
 
 public class ConverterActivity extends AppCompatActivity implements ConverterView {
 
-    @BindView(R.id.etFrom)
-    EditText etFrom;
-    @BindView(R.id.etTo)
-    EditText etTo;
-    @BindView(R.id.spFrom)
-    Spinner spFrom;
-    @BindView(R.id.spTo)
-    Spinner spTo;
-    @BindView(R.id.btnConvert)
-    Button btnConvert;
-    @BindView(R.id.progressBar)
-    ProgressBar progress;
-    @BindString(R.string.inputError)
-    String inputError;
+    @BindView(R.id.etFrom) EditText etFrom;
+    @BindView(R.id.etTo) EditText etTo;
+    @BindView(R.id.spFrom) Spinner spFrom;
+    @BindView(R.id.spTo) Spinner spTo;
+    @BindView(R.id.btnConvert) Button btnConvert;
+    @BindView(R.id.progressBar) ProgressBar progress;
+    @BindString(R.string.inputError) String inputError;
 
     private ConverterPresenter presenter;
+    private int posFrom;
+    private int posTo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +41,24 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
         setContentView(R.layout.converter_activity);
         ButterKnife.bind(this);
 
-        presenter = new ConverterPresenter();
+        presenter = ConverterPresenter.getInstance();
         presenter.attachView(this);
         presenter.getCurrencies();
         btnConvert.setOnClickListener(convertClickListener);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(MyApplication.KEY_POS_FROM, (int) spFrom.getSelectedItemId());
+        outState.putInt(MyApplication.KEY_POS_TO, (int) spTo.getSelectedItemId());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        posFrom = savedInstanceState.getInt(MyApplication.KEY_POS_FROM, 0);
+        posTo = savedInstanceState.getInt(MyApplication.KEY_POS_TO, 0);
     }
 
     @Override
@@ -87,6 +96,8 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         spFrom.setAdapter(adapter);
         spTo.setAdapter(adapter);
+        spFrom.setSelection(posFrom);
+        spTo.setSelection(posTo);
     }
 
     @Override

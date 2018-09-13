@@ -15,6 +15,8 @@ public class MyApplication extends Application {
     public static final String URL_BASE = "https://free.currencyconverterapi.com/api/v6/";
     public static final String URL_CURRENCIES = URL_BASE + "currencies";
     public static final String URL_RATE = URL_BASE + "convert?compact=ultra&q=";
+    public static final String KEY_POS_FROM = "POS_FROM";
+    public static final String KEY_POS_TO = "POS_TO";
 
     private static RequestQueue queue;
 
