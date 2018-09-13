@@ -1,18 +1,26 @@
 package tfs.converter;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentSkipListMap;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 
 /**
  * Created by sinopsys on 9/12/18.
@@ -20,41 +28,41 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CurrencyRepositoryImpl implements CurrencyRepository {
 
-    private CurrencyService service;
-    private List<Currency> currencies;
     private GetCurrencyCallbacks callbacks;
+    private WeakReference<Context> context;
 
-    public CurrencyRepositoryImpl(GetCurrencyCallbacks callbacks) {
+    public CurrencyRepositoryImpl(GetCurrencyCallbacks callbacks, WeakReference<Context> context) {
         this.callbacks = callbacks;
+        this.context = context;
     }
 
     @Override
     public void downloadCurrencies() {
         // Basic solution: no offline support.
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(CurrencyService.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        RequestQueue queue = Volley.newRequestQueue(context.get());
+        final String url = "https://free.currencyconverterapi.com/api/v6/currencies";
 
-        service = retrofit.create(CurrencyService.class);
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    List<Currency> currencies = new ArrayList<>();
+                    try {
+                        JSONObject jo = new JSONObject(response.toString()).getJSONObject("results");
+                        Iterator<String> iter = jo.keys();
+                        while (iter.hasNext()) {
+                            String key = iter.next();
+                            Currency currency = Currency.fromJSONObject(jo.getJSONObject(key));
+                            currencies.add(currency);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    callbacks.onSuccess(currencies);
+                },
+                error -> callbacks.onError(error)
+        );
 
-        Call<CurrencyList> call = service.currencyList();
-
-        call.enqueue(new Callback<CurrencyList>() {
-            @Override
-            public void onResponse(Call<CurrencyList> call, Response<CurrencyList> response) {
-                Log.d("SSSSSSSSS", "onResponse:" + response.body());
-                callbacks.onSuccess(response.body().getCurrencies());
-            }
-
-            @Override
-            public void onFailure(Call<CurrencyList> call, Throwable t) {
-
-                callbacks.onError(t);
-                Log.d("SDFDSLFDSFDSLFK", "onFailure: DKSJFLDSJFLDSKJFLDSJFSFF" + t.getMessage());
-            }
-        });
+        queue.add(getRequest);
     }
 }
 

@@ -11,11 +11,19 @@ import org.json.JSONObject;
  * POJO currency class.
  */
 public class Currency {
-
-
     private String id;
     private String currencyName;
     private String currencySymbol;
+
+    // Factory method to construct a Currency from JSONObject.
+    //
+    public static Currency fromJSONObject(JSONObject jo) throws JSONException {
+        return new Currency(
+                jo.optString("id"),
+                jo.optString("currencyName"),
+                jo.optString("currencySymbol")
+        );
+    }
 
     public Currency(String id, String currencyName, String currencySymbol) {
         this.id = id;

@@ -1,8 +1,13 @@
 package tfs.converter;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import tfs.converter.base.BasePresenter;
@@ -16,24 +21,28 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
     //    private ConverterRepository repository;
     private CurrencyRepository currencyRepository;
     private List<Currency> currencies;
+    private WeakReference<Context> context;
+    private RequestQueue queue;
 
-    public ConverterPresenter() {
+    public ConverterPresenter(WeakReference<Context> context) {
+        this.context = context;
+
         currencyRepository = new CurrencyRepositoryImpl(new GetCurrencyCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Currency> value) {
                 currencies = value;
+                getView().setCurrencies(currencies);
             }
 
             @Override
             public void onError(@NonNull Throwable throwable) {
                 // fixme does nothing at all.
             }
-        });
+        }, context);
     }
 
     public void getCurrencies() {
         currencyRepository.downloadCurrencies();
-        getView().setCurrencies(currencies);
     }
 
     public void convert(Currency from, Currency to, double amount) {
