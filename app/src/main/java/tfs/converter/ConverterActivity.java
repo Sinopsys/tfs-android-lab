@@ -19,8 +19,26 @@ import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+//  KUPRIYANOV KIRILL; kupriyanovkirill@gmail.com
+//
+//
+//  What is done:
+//  * A stable and working application
+//  * Screen rotation is supported; spinners positions are retained
+//  * A notification pop-up when device is not connected to a network
+//  * Highlight EditText element when it is empty to indicate that input is required
+//  * Saving currencies list to a database (implemented using SharedPrefs) so that
+//  * they are available offline
+//  * TODO no internet when convert is clicked
+//
+
+/**
+ * Main activity class.
+ */
 public class ConverterActivity extends AppCompatActivity implements ConverterView {
 
+    // View, String and helper fields.
+    //
     @BindView(R.id.etFrom) EditText etFrom;
     @BindView(R.id.etTo) EditText etTo;
     @BindView(R.id.spFrom) Spinner spFrom;
@@ -37,14 +55,23 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.converter_activity);
+        // Binding fields.
+        //
         ButterKnife.bind(this);
 
+        // Create a singleton instance of presenter, attach view;
+        // Download list of all currencies and set button click listener.
+        //
         presenter = ConverterPresenter.getInstance();
         presenter.attachView(this);
         presenter.getCurrencies();
         btnConvert.setOnClickListener(convertClickListener);
     }
 
+    /**
+     * A method to retain spinners positions. Saves their states by saving index.
+     * @param outState Bundle with parameters.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -52,6 +79,10 @@ public class ConverterActivity extends AppCompatActivity implements ConverterVie
         outState.putInt(MyApplication.KEY_POS_TO, (int) spTo.getSelectedItemId());
     }
 
+    /**
+     * A method to retain spinners positions. Restores state.
+     * @param savedInstanceState Bundle with saved parameters.
+     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);

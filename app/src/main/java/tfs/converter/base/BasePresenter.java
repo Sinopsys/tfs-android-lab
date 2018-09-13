@@ -4,6 +4,11 @@ package tfs.converter.base;
  * Created by sinopsys on 9/12/18.
  */
 
+/**
+ * A base class for all presentors. In this case, there exists only 1 singleton presentor.
+ *
+ * @param <T> View to which the presentor is binded.
+ */
 public abstract class BasePresenter<T extends BaseView> {
 
     private T view;
@@ -22,10 +27,6 @@ public abstract class BasePresenter<T extends BaseView> {
 
     public T getView() {
         return view;
-    }
-
-    public boolean isViewAttached() {
-        return view != null;
     }
 }
 

@@ -61,6 +61,10 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
 
     public void convert(Currency from, Currency to, String amount) {
         // Show initial progress
+        if (!getView().isNetworkAvailable()) {
+            getView().showNoInternetNotification();
+            return;
+        }
         getView().showProgress();
 
         if (TextUtils.isEmpty(amount)) {
