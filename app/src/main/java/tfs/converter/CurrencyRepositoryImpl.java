@@ -1,25 +1,14 @@
 package tfs.converter;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.util.Log;
-import android.widget.Toast;
-
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -28,22 +17,20 @@ import java.util.Set;
 
 public class CurrencyRepositoryImpl implements CurrencyRepository {
 
-    private GetCurrencyCallbacks callbacks;
-    private WeakReference<Context> context;
+    private OnResultCallback<List<Currency>> currencyCallback;
+    private OnResultCallback<Double> rateCallback;
 
-    public CurrencyRepositoryImpl(GetCurrencyCallbacks callbacks, WeakReference<Context> context) {
-        this.callbacks = callbacks;
-        this.context = context;
+    public CurrencyRepositoryImpl(OnResultCallback<List<Currency>> currencyCallback,
+                                  OnResultCallback<Double> rateCallback) {
+        this.currencyCallback = currencyCallback;
+        this.rateCallback = rateCallback;
     }
 
     @Override
     public void downloadCurrencies() {
         // Basic solution: no offline support.
 
-        RequestQueue queue = Volley.newRequestQueue(context.get());
-        final String url = "https://free.currencyconverterapi.com/api/v6/currencies";
-
-        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, MyApplication.URL_CURRENCIES, null,
                 response -> {
                     List<Currency> currencies = new ArrayList<>();
                     try {
@@ -57,12 +44,43 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    callbacks.onSuccess(currencies);
+                    currencyCallback.onSuccess(currencies);
                 },
-                error -> callbacks.onError(error)
+                error -> currencyCallback.onError(error)
         );
 
-        queue.add(getRequest);
+        MyApplication.getRequestQueue().add(getRequest);
+    }
+
+    @Override
+    public void getRate(String from, String to) {
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(from).append("_").append(to)
+                .append(",")
+                .append(to).append("_").append(to);
+
+        String params = builder.toString();
+
+
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, MyApplication.URL_RATE + params, null,
+                response -> {
+                    double value = 0.;
+                    try {
+                        JSONObject jo = new JSONObject(response.toString());
+                        Iterator<String> keys = jo.keys();
+                        String str_Name = keys.next();
+                        value = Double.parseDouble(jo.optString(str_Name));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    rateCallback.onSuccess(value);
+                },
+                error -> rateCallback.onError(error)
+        );
+
+        MyApplication.getRequestQueue().add(getRequest);
     }
 }
 

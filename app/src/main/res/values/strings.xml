@@ -3,4 +3,5 @@
     <string name="convertFrom">Конвертировать из</string>
     <string name="convertTo">Конвертировать в</string>
     <string name="convert">Конвертировать</string>
+    <string name="inputError">Необходимо ввести сумму</string>
 </resources>

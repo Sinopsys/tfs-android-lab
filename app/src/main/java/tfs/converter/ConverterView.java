@@ -17,6 +17,10 @@ interface ConverterView extends BaseView {
     void setData(String s);
 
     void setCurrencies(List<Currency> currencyList);
+
+    void showInputError();
+
+    String getFromText();
 }
 
 

@@ -9,6 +9,14 @@ import java.util.List;
 public interface CurrencyRepository {
 
     void downloadCurrencies();
+
+    void getRate(String from, String to);
+
+    interface OnResultCallback<T> {
+        void onSuccess(T data);
+
+        void onError(Throwable e);
+    }
 }
 
 

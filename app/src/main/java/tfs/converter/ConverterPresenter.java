@@ -1,13 +1,7 @@
 package tfs.converter;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.widget.Toast;
+import android.text.TextUtils;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import tfs.converter.base.BasePresenter;
@@ -21,40 +15,58 @@ public class ConverterPresenter extends BasePresenter<ConverterView> {
     //    private ConverterRepository repository;
     private CurrencyRepository currencyRepository;
     private List<Currency> currencies;
-    private WeakReference<Context> context;
-    private RequestQueue queue;
+    private double currentRate;
 
-    public ConverterPresenter(WeakReference<Context> context) {
-        this.context = context;
-
-        currencyRepository = new CurrencyRepositoryImpl(new GetCurrencyCallbacks() {
-            @Override
-            public void onSuccess(@NonNull List<Currency> value) {
-                currencies = value;
-                getView().setCurrencies(currencies);
-            }
-
-            @Override
-            public void onError(@NonNull Throwable throwable) {
-                // fixme does nothing at all.
-            }
-        }, context);
+    public ConverterPresenter() {
+        currencyRepository = new CurrencyRepositoryImpl(new OnCurrenciesDownload(),
+                new OnRateDownload());
     }
 
     public void getCurrencies() {
+        getView().showProgress();
         currencyRepository.downloadCurrencies();
     }
 
-    public void convert(Currency from, Currency to, double amount) {
+    public void convert(Currency from, Currency to, String amount) {
         // Show initial progress
         getView().showProgress();
 
-        // TODO: compute
-//        repository.convert();
+        if (TextUtils.isEmpty(amount)) {
+            getView().showInputError();
+            getView().hideProgress();
+            return;
+        }
 
-        // OnSuccessCallback
-        getView().hideProgress();
-        getView().setData("55.32");
+        currencyRepository.getRate(from.toString(), to.toString());
+    }
+
+    private final class OnCurrenciesDownload implements CurrencyRepository.OnResultCallback<List<Currency>> {
+        @Override
+        public void onSuccess(List<Currency> data) {
+            currencies = data;
+            getView().setCurrencies(currencies);
+            getView().hideProgress();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            // FIXME does nothing
+        }
+    }
+
+    private final class OnRateDownload implements CurrencyRepository.OnResultCallback<Double> {
+        @Override
+        public void onSuccess(Double data) {
+            currentRate = data;
+            double res = Double.parseDouble(getView().getFromText()) * currentRate;
+            getView().setData(Double.toString(res));
+            getView().hideProgress();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            // FIXME does nothing
+        }
     }
 }
 
